@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric  #-}
+
 module Blockchain (
     Blockchain
     , Block
@@ -8,6 +11,8 @@ module Blockchain (
     , getLastBlock
 ) where
 
+import Data.Aeson
+import GHC.Generics
 import Debug.Trace
 import Transaction
 import BlockHeader
@@ -20,7 +25,7 @@ type Block = (BlockHeader, [Transaction])
 data Blockchain = BC {
     pool :: [Transaction]   -- ^ a pool of transactions to be processed
     , blocks :: [Block]     -- ^ a chain of blocks which consist of BlockHeader and a list of Transactions
-    } deriving (Show, Eq)
+    } deriving (Show, Eq, Generic)
 
 -- | Creates a genesis block
 -- | Timestamp will be 0 indicating this is a genesis block, and 
@@ -62,3 +67,11 @@ getLastBlock :: Blockchain -> Block
 getLastBlock (BC {blocks=[]}) = error "Cannot retrieve the last block from an empty blockchain"
 getLastBlock bc = last (blocks bc)
 
+-- The parser is autoderived
+instance FromJSON Blockchain
+
+-- The encoder needs to be implemented to preserve the order 
+instance ToJSON Blockchain where
+  toEncoding bc =
+    pairs $ "blocks" .= blocks bc
+         <> "pool"   .= pool bc

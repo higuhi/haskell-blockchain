@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f155e808c069e562691e985ae828247ef0e0acc9c7638a9c28f251c7ed0ce19c
+-- hash: 589b843a5c22851047719c40322ea33eb79b2c0326e5daa50883f8ea2d8c3de4
 
 name:           hChain
 version:        0.1.0.0
@@ -36,7 +36,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , hspec
   default-language: Haskell2010
 
@@ -48,7 +49,8 @@ executable hChain-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , hChain
     , hspec
   default-language: Haskell2010
@@ -62,7 +64,8 @@ test-suite hChain-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , hChain
     , hspec
   default-language: Haskell2010
