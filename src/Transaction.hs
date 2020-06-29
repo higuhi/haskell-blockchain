@@ -32,7 +32,7 @@ instance FromJSON Transaction
 -- The encoder needs to be implemented to preserve the order 
 instance ToJSON Transaction where
   toEncoding trans =
-    pairs ( "sender"   .= sender trans
+    pairs $ "sender"   .= sender trans
          <> "receiver" .= receiver trans
-         <> "amount"   .= amount trans)
+         <> "amount"   .= amount trans
 
