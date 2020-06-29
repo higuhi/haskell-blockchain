@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 589b843a5c22851047719c40322ea33eb79b2c0326e5daa50883f8ea2d8c3de4
+-- hash: eb814d3ac1977a32e9014d25c672a65f2dfbc16da33e4569742df542ec3a3947
 
 name:           hChain
 version:        0.1.0.0
@@ -38,6 +38,8 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
+    , cryptonite
     , hspec
   default-language: Haskell2010
 
@@ -51,6 +53,8 @@ executable hChain-exe
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
+    , cryptonite
     , hChain
     , hspec
   default-language: Haskell2010
@@ -66,6 +70,8 @@ test-suite hChain-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
+    , cryptonite
     , hChain
     , hspec
   default-language: Haskell2010

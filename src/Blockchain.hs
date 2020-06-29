@@ -6,7 +6,10 @@ module Blockchain (
     , Block
     , createGenesis
     , addNewBlock
+    , mineBlock
+    , hashCashPrefix
     , requestNewTransaction
+    , isValidChain
     , getLength
     , getLastBlock
 ) where
@@ -27,12 +30,17 @@ data Blockchain = BC {
     , blocks :: [Block]     -- ^ a chain of blocks which consist of BlockHeader and a list of Transactions
     } deriving (Show, Eq, Generic)
 
+
+-- | Hashcash target used in this blockchain. The proof in the block header must 
+-- | be correct that block header hash is going to start with this hashCashPrefix
+hashCashPrefix :: String
+hashCashPrefix = "0000"
+
 -- | Creates a genesis block
 -- | Timestamp will be 0 indicating this is a genesis block, and 
 -- | hash of the privious block and proof of work are arbitrarily chosen.  
 createGenesis :: Blockchain
-createGenesis = addNewBlock (BC {pool=[], blocks=[]}) 0 "100" "1"
-
+createGenesis = addNewBlock (BC {pool=[], blocks=[]}) 0 "100" 1
 
 -- | Adds a transaction to the pool of transactions to be processed.
 -- | This function will return a Blockchain with the transaction in the pool 
@@ -50,13 +58,39 @@ requestNewTransaction bc trans = (newBc, nextIndex)
 -- | Creates a new block from timestamp, hash of the previous block, 
 -- | proof of work and transactions in the pool. 
 -- | The block will be added to the end of chain and transaction pool 
--- | will be cleared. 
-addNewBlock :: Blockchain -> Int -> String -> String -> Blockchain
+-- | will be cleared. (This function is for testing purpose and should not be used)
+addNewBlock :: Blockchain -> Int -> String -> Int -> Blockchain
 addNewBlock bc timestamp prevHash proof = (BC {pool=[], blocks=(blks ++ [newBlk])})
     where
         blks = blocks bc
         newBlkHdr = createBlockHeader ((length blks)+1) timestamp prevHash proof
         newBlk = (newBlkHdr, (pool bc))
+
+-- | Creates a new block from timestamp and mines it to make a valid block. 
+-- | The returned blockchain is always one block longer than the input blockchain. 
+mineBlock :: Blockchain -> Int -> Blockchain
+mineBlock bc timestamp = (BC {pool=[], blocks=(blks ++ [newBlk])})
+    where
+        blks = blocks bc
+        lastBlkHdr = fst (getLastBlock bc)
+        newBlkHdr = workForProof (createBlockHeader ((length blks)+1) timestamp (getBlockHash lastBlkHdr) 0) hashCashPrefix
+        newBlk = (newBlkHdr, (pool bc))
+
+-- | Checks if the given blockchain is valid 
+isValidChain :: Blockchain -> Bool 
+isValidChain bc = isValidBlocks (blocks bc)
+
+-- | Checks if the given list of blocks are vaid by checking that 
+-- | the block has correct block header hash from the previous block and
+-- | the block header hash of the block has valid hash cash prefix. 
+isValidBlocks :: [Block] -> Bool
+isValidBlocks [] = False        -- blocks should not be empty 
+isValidBlocks (blk:[]) = True   -- genesis block is always valid
+isValidBlocks (prevBlock:currentBlock:rest) 
+    = hashCheck && proofCheck && (isValidBlocks (currentBlock:rest))
+    where
+        hashCheck = getBlockHash (fst prevBlock) == prevHash (fst currentBlock)
+        proofCheck = isValidBlockHeader (fst currentBlock) hashCashPrefix
 
 -- | Returns the length of this blockchain 
 getLength :: Blockchain -> Int
